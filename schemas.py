@@ -12,7 +12,8 @@ Model name is converted to lowercase for the collection name:
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
+from datetime import date
 
 # Example schemas (replace with your own):
 
@@ -37,6 +38,35 @@ class Product(BaseModel):
     price: float = Field(..., ge=0, description="Price in dollars")
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
+
+# Travel app schemas
+
+class Place(BaseModel):
+    """
+    Saved places for a user
+    Collection name: "place"
+    """
+    user_id: str = Field(..., description="Identifier to group places per user/session")
+    name: str = Field(..., description="Place name")
+    latitude: float = Field(..., ge=-90, le=90, description="Latitude")
+    longitude: float = Field(..., ge=-180, le=180, description="Longitude")
+    category: Optional[str] = Field(None, description="Category like museum, cafe, park")
+    notes: Optional[str] = Field(None, description="Optional notes")
+
+class DayPlan(BaseModel):
+    day: int
+    place_ids: List[str]
+
+class Itinerary(BaseModel):
+    """
+    Generated itineraries
+    Collection name: "itinerary"
+    """
+    user_id: str = Field(..., description="User/session identifier")
+    title: str = Field(..., description="Itinerary title")
+    start_date: Optional[date] = Field(None, description="Start date of the trip")
+    days: List[DayPlan] = Field(default_factory=list, description="Ordered places per day")
+    total_distance_km: Optional[float] = Field(None, description="Estimated total travel distance in km")
 
 # Add your own schemas here:
 # --------------------------------------------------
